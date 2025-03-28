@@ -25,7 +25,7 @@ jobs:
         run: npm ci  # Installs Cypress and other dependencies
 
       - name: Run Cypress Tests
-        run: npm test  # Runs Cypress using the script from package.json
+        run: npx cypress run --browser chrome --headless
         env:
           DEBUG: "cypress:*"
 
