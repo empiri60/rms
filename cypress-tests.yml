@@ -1,4 +1,4 @@
-name: Run Cypress Tests
+name: Cypress Tests
 
 on:
   push:
@@ -19,17 +19,24 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 18  # Change to match your local Node.js version
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci  # Ensures exact versions as per package-lock.json
 
-      - name: Run Cypress Tests
-        run: npx cypress run
+      - name: Verify Cypress Installation
+        run: npx cypress info
+
+      - name: Run Cypress Tests (Headless Mode)
+        run: npx cypress run --browser chrome --headless --config video=false
+        env:
+          DEBUG: "cypress:*"  # Enables debugging logs
 
       - name: Upload Cypress Videos & Screenshots on Failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: cypress-results
-          path: cypress/videos
+          name: cypress-artifacts
+          path: |
+            cypress/videos
+            cypress/screenshots
