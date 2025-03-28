@@ -19,8 +19,9 @@
   "description": "",
 
 "devDependencies": {
-  "cypress": "^13.3.0",
-  "@faker-js/faker": "^7.1.0"
+  "@faker-js/faker": "^7.1.0",
+  "cypress": "14.2.1",
+  "electron": "130.0.0"
 }
 
 }
