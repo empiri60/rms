@@ -22,12 +22,10 @@ jobs:
           node-version: 18
 
       - name: Install Dependencies
-        run: npm ci  # Installs Cypress and other dependencies
+        run: npm install  # Installs all dependencies including @faker-js/faker
 
-      - name: Run Cypress Tests
+      - name: Run Cypress Tests in Headless Mode
         run: npx cypress run --browser chrome --headless
-        env:
-          DEBUG: "cypress:*"
 
       - name: Upload Cypress Artifacts (Videos & Screenshots on Failure)
         if: failure()
