@@ -9,6 +9,7 @@ describe('Add Products to Cart and Verify Total Price', () => {
 
   it('should add 3 products to the cart one by one and verify the total price', () => {
     VisitUrl.visit();
+    cy.wait(2000)
 
     for (let i = 0; i < 3; i++) {
       productPage.selectProduct(i);
