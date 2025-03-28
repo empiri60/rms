@@ -21,10 +21,15 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Dependencies
-        run: npm install  # Installs all dependencies including @faker-js/faker
+      - name: Install Chrome (if needed)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
 
-      - name: Run Cypress Tests in Headless Mode
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Cypress Tests in Chrome Headless Mode
         run: npx cypress run --browser chrome --headless
 
       - name: Upload Cypress Artifacts (Videos & Screenshots on Failure)
