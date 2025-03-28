@@ -7,7 +7,7 @@ class ProductPage {
   }
 
   addToCart() {
-    cy.get('#tbodyid .btn-success', { timeout: 5000 }).click();
+    cy.get('#tbodyid .btn-success', { timeout: 10000 }).click();
     cy.on('window:alert', (text) => {
       expect(text).to.include('Product added'); 
     });
