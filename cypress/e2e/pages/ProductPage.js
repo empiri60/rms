@@ -2,7 +2,7 @@ class ProductPage {
  
 
   selectProduct(index) {
-    cy.get('#tbodyid > div').eq(index).click({timeout:2000});
+    cy.get('#tbodyid .card-title').eq(index).click({timeout:3000},{focus:true});
 
   }
 
