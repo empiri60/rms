@@ -1,42 +1,42 @@
-import ProductPage from './pages/ProductPage';
+import addProductToCart from './pages/addProductsToCart';
 import CartPage from './pages/CartPage';
 import VisitUrl from './pages/basicPage'
 import PlaceOrder from './pages/PlaceOrder'
 
 describe('Add Products to Cart and Verify Total Price', () => {
-  const productPage = new ProductPage();
+  const addProductTocart = new addProductToCart();
   const cartPage = new CartPage();
+  beforeEach(() => {
+    cy.visit('https://www.demoblaze.com/');
+  })
 
   it('should add 3 products to the cart one by one and verify the total price', () => {
-    VisitUrl.visit();
-
+  
     for (let i = 0; i < 3; i++) {
-      productPage.selectProduct(i);
-      productPage.addToCart();
-      productPage.goBack();
-      productPage.goBack();
+      addProductTocart.selectProduct(i);
+      addProductTocart.addToCart();
+      addProductTocart.goBack();
+      addProductTocart.goBack();
     }
-
-    // Verify that 3 items are added to the cart
-    cartPage.visit();
-    cartPage.verifyCartItems();
-    cartPage.verifyCartTotal();
-  
-
-    // Delete the second product from the cart and verify the new total price
-    cartPage.deleteProduct(0);
-    cy.wait(2000)
-    cartPage.verifyCartTotal();
-
-    PlaceOrder.FilledFormToOrder();
-    PlaceOrder.VerifyOrderSuccessfullyPlaced();
   })
-    
+
+    it('Validate the total amount of the product',()=>{
+      cartPage.visit();
+      cartPage.verifyCartItems();
+      cartPage.verifyCartTotal();
+
+    })
+
   
+    it('Validate the amount after delete the product from the cart',()=>{
+      cartPage.deleteProduct(0);
+      cy.wait(2000)
+      cartPage.verifyCartTotal();
 
+    })
 
-
-   
-
-
+    it('Place the order',()=>{
+      PlaceOrder.FilledFormToOrder();
+      PlaceOrder.VerifyOrderSuccessfullyPlaced();
+    })
 });

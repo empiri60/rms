@@ -1,4 +1,4 @@
-class ProductPage {
+class addProductToCart {
  
 
   selectProduct(index) {
@@ -18,4 +18,4 @@ class ProductPage {
   }
 }
 
-export default ProductPage;
+export default addProductToCart;

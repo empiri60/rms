@@ -6,7 +6,10 @@ module.exports = defineConfig({
     pageLoadTimeout: 60000,
     video: true,
     screenshotOnRunFailure: true, 
+    supportFile: "cypress/support/e2e.js",
+    
     setupNodeEvents(on, config) { 
     },
+    experimentalSessionAndOrigin: true,
   },
 });
