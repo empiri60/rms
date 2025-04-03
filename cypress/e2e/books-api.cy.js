@@ -1,5 +1,5 @@
-// cypress/e2e/booksApi.spec.js
-import BooksApiClient from "./pages/BooksApiClient"
+
+import BooksApiClient from "../pageObjects/api/BookApiClient.page"
 
 describe('Books API Tests with Object Model', () => {
     const baseUrl = 'https://simple-books-api.glitch.me';
@@ -7,35 +7,29 @@ describe('Books API Tests with Object Model', () => {
     let orderId;
   
     before(() => {
-      // Initialize API client
       const email = `test${Date.now()}@example.com`;
-      apiClient = new BooksApiClient(baseUrl);
-      
-      // Authenticate and set token
-      apiClient.authenticate('Test Client', email)
+      BooksApiClient.authenticate('Test Client', email)
         .then((response) => {
-          apiClient.authToken = response.body.accessToken;
+          BooksApiClient.authToken = response.body.accessToken;
         });
     });
   
     beforeEach(() => {
-      // Create test order before each test
-      apiClient.createOrder(1, 'John Doe')
+      BooksApiClient.createOrder(1, 'John Doe')
         .then((response) => {
           orderId = response.body.orderId;
         });
     });
   
     afterEach(() => {
-      // Cleanup after each test if order exists
       if (orderId) {
-        apiClient.deleteOrder(orderId);
+        BooksApiClient.deleteOrder(orderId);
       }
     });
   
     describe('Basic API Checks', () => {
       it('should verify API status', () => {
-        apiClient.getStatus()
+        BooksApiClient.getStatus()
           .should((response) => {
             expect(response.status).to.eq(200);
             expect(response.body.status).to.eq('OK');
@@ -43,7 +37,7 @@ describe('Books API Tests with Object Model', () => {
       });
   
       it('should fetch book list', () => {
-        apiClient.getBooks()
+        BooksApiClient.getBooks()
           .should((response) => {
             expect(response.status).to.eq(200);
             expect(response.body).to.be.an('array').that.is.not.empty;
@@ -55,7 +49,7 @@ describe('Books API Tests with Object Model', () => {
       it('should create and verify order', () => {
         expect(orderId).to.be.a('string');
         
-        apiClient.getOrder(orderId)
+        BooksApiClient.getOrder(orderId)
           .should((response) => {
             expect(response.status).to.eq(200);
             expect(response.body.customerName).to.eq('John Doe');
@@ -63,24 +57,24 @@ describe('Books API Tests with Object Model', () => {
       });
   
       it('should update an order', () => {
-        apiClient.updateOrder(orderId, { customerName: 'Bilal' })
+        BooksApiClient.updateOrder(orderId, { customerName: 'Bilal' })
           .should((response) => {
             expect(response.status).to.eq(204);
           });
   
-        apiClient.getOrder(orderId)
+          BooksApiClient.getOrder(orderId)
           .should((response) => {
             expect(response.body.customerName).to.eq('Bilal');
           });
       });
   
       it('should delete an order', () => {
-        apiClient.deleteOrder(orderId)
+        BooksApiClient.deleteOrder(orderId)
           .should((response) => {
             expect(response.status).to.eq(204);
           });
   
-        apiClient.getOrder(orderId)
+          BooksApiClient.getOrder(orderId)
           .should((response) => {
             expect(response.status).to.eq(404);
           });
