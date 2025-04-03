@@ -1,20 +1,30 @@
-class CreateAccount{
-  clickNavigation(){
-    cy.get('#signin2').click()
+class CreateAccount {
+  clickNavigation() {
+    cy.get('[data-target="#signInModal"]').click();
+    return this; // Return the instance for chaining
   }
-  enterEmail(randomEmail){
-    cy.get('#sign-username').clear().type(randomEmail,{ delay: 100,force: true }).should('have.value', randomEmail)
+
+  enterEmail(email) {
+    cy.get('#sign-username').clear().type(email);
+    return this;
   }
-  enterPassword(){
-    cy.get('#sign-password').clear().type('abcd3@@123',{ delay: 100, force: true  })
+
+  enterPassword(password) {
+    cy.get('#sign-password').clear().type(password);
+    return this;
   }
-  clickSignupButton(){
+
+  clickSignupButton() {
     cy.contains('button', 'Sign up').click();
+    return this;
   }
-  verifyAlertMessage(expectedMessage){
-    cy.on('window:alert', (alertText) => {
-        expect(alertText).to.equal(expectedMessage);
-      });
+
+  verifyAlertMessage(expectedMessage) {
+    cy.on('window:alert', (text) => {
+      expect(text).to.equal(expectedMessage);
+    });
+    return this;
   }
 }
+
 export default new CreateAccount();

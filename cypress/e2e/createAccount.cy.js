@@ -1,35 +1,48 @@
 /// <reference types="cypress" />
 import CreateAccount from './pages/createAccount';
-import VisitUrl from './pages/basicPage'
+import VisitUrl from './pages/basicPage';
 import { faker } from '@faker-js/faker';
-const randomEmail = faker.internet.email();
 
 describe('Create an Account', () => {
+  // Load fixture data once before any tests run
+  before(() => {
+    cy.fixture('userDetails.json').then(data => {
+      Cypress.env('accountData', data);
+    });
+  });
+
   beforeEach(() => {
-    VisitUrl.visit()
-  })
+    VisitUrl.visit();
+  });
 
   it('Verify that a user can successfully create an account with valid information', () => {
+    const { validAccount } = Cypress.env('accountData');
+    const randomEmail = faker.internet.email();
+
     CreateAccount.clickNavigation()
-    CreateAccount.enterEmail(randomEmail)
-    CreateAccount.enterPassword('abcd3@@123')
-    CreateAccount.clickSignupButton()
-    CreateAccount.verifyAlertMessage('Sign up successful.')
-  })
+      .enterEmail(randomEmail)
+      .enterPassword(validAccount.password)
+      .clickSignupButton()
+      .verifyAlertMessage(validAccount.successMessage);
+  });
 
   it('Verify error when using an already registered email', () => {
+    const { existingAccount } = Cypress.env('accountData');
+
     CreateAccount.clickNavigation()
-    CreateAccount.enterEmail('abc@gmail.com')
-    CreateAccount.enterPassword('abcd3@@123')
-    CreateAccount.clickSignupButton()
-    CreateAccount.verifyAlertMessage('This user already exist.')
-  })
+      .enterEmail(existingAccount.email)
+      .enterPassword(existingAccount.password)
+      .clickSignupButton()
+      .verifyAlertMessage(existingAccount.errorMessage);
+  });
 
   it('Verify appropriate error messages when required fields are missing', () => {
+    const { missingFields } = Cypress.env('accountData');
+    const randomEmail = faker.internet.email();
+
     CreateAccount.clickNavigation()
-    CreateAccount.enterEmail(randomEmail)
-    CreateAccount.clickSignupButton()
-    CreateAccount.verifyAlertMessage('Please fill out Username and Password.')
-  
-  })
-})
+      .enterEmail(randomEmail)
+      .clickSignupButton()
+      .verifyAlertMessage(missingFields.errorMessage);
+  });
+});
