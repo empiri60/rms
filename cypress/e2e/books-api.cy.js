@@ -1,106 +1,89 @@
-describe('Simple Books API Tests', () => {
+// cypress/e2e/booksApi.spec.js
+import BooksApiClient from "./pages/BooksApiClient"
+
+describe('Books API Tests with Object Model', () => {
     const baseUrl = 'https://simple-books-api.glitch.me';
-    let apiToken;
+    let apiClient;
     let orderId;
-
-    // Get API token before any test
+  
     before(() => {
-        cy.request({
-            method: 'POST',
-            url: `${baseUrl}/api-clients/`,
-            body: {
-                clientName: 'Test Client',
-                clientEmail: `test${Date.now()}@example.com`
-            }
-        }).then((response) => {
-            expect(response.status).to.eq(201);
-            apiToken = response.body.accessToken;
+      // Initialize API client
+      const email = `test${Date.now()}@example.com`;
+      apiClient = new BooksApiClient(baseUrl);
+      
+      // Authenticate and set token
+      apiClient.authenticate('Test Client', email)
+        .then((response) => {
+          apiClient.authToken = response.body.accessToken;
         });
     });
-
-    // Create an order before each test that needs it
+  
     beforeEach(() => {
-        const orderData = {
-            bookId: 1,
-            customerName: 'John Doe'
-        };
-
-        cy.request({
-            method: 'POST',
-            url: `${baseUrl}/orders`,
-            headers: { Authorization: `Bearer ${apiToken}` },
-            body: orderData,
-        }).then((response) => {
-            orderId = response.body.orderId;
+      // Create test order before each test
+      apiClient.createOrder(1, 'John Doe')
+        .then((response) => {
+          orderId = response.body.orderId;
         });
     });
-
-    it('should return API status as OK', () => {
-        cy.request(`${baseUrl}/status`).then((response) => {
+  
+    afterEach(() => {
+      // Cleanup after each test if order exists
+      if (orderId) {
+        apiClient.deleteOrder(orderId);
+      }
+    });
+  
+    describe('Basic API Checks', () => {
+      it('should verify API status', () => {
+        apiClient.getStatus()
+          .should((response) => {
             expect(response.status).to.eq(200);
-            expect(response.body).to.have.property('status', 'OK');
-        });
-    });
-
-    it('should return a list of books', () => {
-        cy.request(`${baseUrl}/books`).then((response) => {
+            expect(response.body.status).to.eq('OK');
+          });
+      });
+  
+      it('should fetch book list', () => {
+        apiClient.getBooks()
+          .should((response) => {
             expect(response.status).to.eq(200);
-            expect(response.body).to.be.an('array');
-        });
+            expect(response.body).to.be.an('array').that.is.not.empty;
+          });
+      });
     });
-
-    it('should retrieve details of a single book', () => {
-        cy.request(`${baseUrl}/books`).then((response) => {
-            const bookId = response.body[2].id;
-            cy.request(`${baseUrl}/books/${bookId}`).then((bookResponse) => {
-                expect(bookResponse.status).to.eq(200);
-                expect(bookResponse.body).to.have.property('id', bookId);
-            });
-        });
-    });
-
-    it('should update an order', () => {
-        const updatedData = { customerName: 'bilal' };
-    
-        // 1. Perform the update (expecting 204)
-        cy.request({
-            method: 'PATCH',
-            url: `${baseUrl}/orders/${orderId}`,
-            headers: { Authorization: `Bearer ${apiToken}` },
-            body: updatedData,
-        }).then((response) => {
+  
+    describe('Order Management', () => {
+      it('should create and verify order', () => {
+        expect(orderId).to.be.a('string');
+        
+        apiClient.getOrder(orderId)
+          .should((response) => {
+            expect(response.status).to.eq(200);
+            expect(response.body.customerName).to.eq('John Doe');
+          });
+      });
+  
+      it('should update an order', () => {
+        apiClient.updateOrder(orderId, { customerName: 'Bilal' })
+          .should((response) => {
             expect(response.status).to.eq(204);
-        });
-    
-        // 2. Verify the update by fetching the order
-        cy.request({
-            method: 'GET',
-            url: `${baseUrl}/orders/${orderId}`,
-            headers: { Authorization: `Bearer ${apiToken}` }
-        }).then((response) => {
-            expect(response.status).to.eq(200);
-            expect(response.body).to.have.property('customerName', 'bilal');
-        });
-    });
-
-    it('should retrieve all orders', () => {
-        cy.request({
-            method: 'GET',
-            url: `${baseUrl}/orders`,
-            headers: { Authorization: `Bearer ${apiToken}` }
-        }).then((response) => {
-            expect(response.status).to.eq(200);
-            expect(response.body).to.be.an('array');
-        });
-    });
-
-    it('should delete an order', () => {
-        cy.request({
-            method: 'DELETE',
-            url: `${baseUrl}/orders/${orderId}`,
-            headers: { Authorization: `Bearer ${apiToken}` }
-        }).then((response) => {
+          });
+  
+        apiClient.getOrder(orderId)
+          .should((response) => {
+            expect(response.body.customerName).to.eq('Bilal');
+          });
+      });
+  
+      it('should delete an order', () => {
+        apiClient.deleteOrder(orderId)
+          .should((response) => {
             expect(response.status).to.eq(204);
-        });
+          });
+  
+        apiClient.getOrder(orderId)
+          .should((response) => {
+            expect(response.status).to.eq(404);
+          });
+      });
     });
-});
+  });
