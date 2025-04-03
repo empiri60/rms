@@ -1,0 +1,43 @@
+name: Cypress Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (22.14.0)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Verify Cypress Version
+        run: npx cypress -v  # Check installed Cypress version
+
+      - name: Verify Electron Version
+        run: npx electron -v || echo "Electron not found"
+
+      - name: Run Cypress Tests in Chrome Headless Mode
+        run: npx cypress run --browser chrome --headless
+
+      - name: Upload Cypress Artifacts (Screenshots & Videos)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-debug-artifacts
+          path: |
+            cypress/videos
+            cypress/screenshots
